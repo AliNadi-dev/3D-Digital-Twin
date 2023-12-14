@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta author="Ali Nadi">
+  <title>Urban 3D Digital Twin</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Cesium-->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.112/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.112/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <!--Plotly-->
+  <script src="plotly.js" charset="utf-8"></script>
+  <script src='https://cdn.plot.ly/plotly-2.27.0.min.js'></script>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 56px; /* Adjusted for the fixed navbar */
+    }
+
+    .rsidebar {
+      height: 100vh;
+      position: fixed;
+
+      top: 0;
+      right: 0;
+      padding: 15px;
+      background-color: #173d65;
+      color: #fcfcfc;
+    }
+
+    .lsidebar {
+      height: 100vh;
+      position: fixed;
+    
+      top: 0;
+      left: 0;
+      padding: 15px;
+      background-color: #173d65;
+      color: #fcfcfc;
+    }
+
+    .main-content {
+        height: 100vh;
+        max-height: 100vh;
+        margin-right: 330px; /* Adjusted for the sidebar width */
+        margin-left: 270px; /* Adjusted for the sidebar width */
+        overflow-y: auto;
+        background-color: rgb(20, 20, 23);
+
+    }
+
+    .title-container {
+      text-align: center;
+      background-color: #f8f9fa; /* Add a light background color for better readability */
+      padding: 20px;
+    }
+
+    .map-section {
+        left: 0;
+        background-color: rgb(23, 23, 24);
+        color: #fff;
+      
+    }
+    .cardHolder {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    .visualization {
+        height: 35vh;
+        overflow-y: auto;
+    }
+    .TUD {
+        background-image: linear-gradient(rgb(165, 179, 213), rgb(249, 250, 251));
+    }
+    #visually-hidden { display:none; } 
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-globe"></i> <!-- Font Awesome icon --> 
+      Den Haag Digital Twin
+    </a>
+  </nav>
+  <!-- Sidebar -->
+  <div class="rsidebar">
+        <h2>Menu</h2> <!-- New title -->
+        <div class="Pickcoordination" style="width: 19rem;">
+            <h5 class="coord_title">3D Model Gallary</h5>
+            <p class="card-text"> Scroll in the gallary, choose a 3D Model and place them on the map.</p>
+            <button type="button" id="btn_simulate" class="btn btn-outline-success">Simulate</button>
+            <div class="spinner-grow text-success" role="status" aria-hidden="true">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+
+        </div><br>
+        <div class="cardHolder">
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Stylized Tree" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/6d1aeea748f147789004bc03e1930d32/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 4px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/stylized-tree-6d1aeea748f147789004bc03e1930d32?utm_medium=embed&utm_campaign=share-popup&utm_content=6d1aeea748f147789004bc03e1930d32" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Stylized Tree </a> by <a href="https://sketchfab.com/yonimantz09?utm_medium=embed&utm_campaign=share-popup&utm_content=6d1aeea748f147789004bc03e1930d32" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> yonimantz </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=6d1aeea748f147789004bc03e1930d32" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_AddTree" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="residential complex modern apartment building" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/97cb8bcc510b4985ab11bcf261284215/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/residential-complex-modern-apartment-building-97cb8bcc510b4985ab11bcf261284215?utm_medium=embed&utm_campaign=share-popup&utm_content=97cb8bcc510b4985ab11bcf261284215" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> residential complex modern apartment building </a> by <a href="https://sketchfab.com/saakbary64?utm_medium=embed&utm_campaign=share-popup&utm_content=97cb8bcc510b4985ab11bcf261284215" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> saeedakbari </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=97cb8bcc510b4985ab11bcf261284215" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_residential" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Shopping Plaza Building 02" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/ac7be4c5902a4284b8bf09d21637d273/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/shopping-plaza-building-02-ac7be4c5902a4284b8bf09d21637d273?utm_medium=embed&utm_campaign=share-popup&utm_content=ac7be4c5902a4284b8bf09d21637d273" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Shopping Plaza Building 02 </a> by <a href="https://sketchfab.com/krahazik?utm_medium=embed&utm_campaign=share-popup&utm_content=ac7be4c5902a4284b8bf09d21637d273" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Krahazik </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=ac7be4c5902a4284b8bf09d21637d273" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_building" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="residential complex modern apartment building" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/568b83a809ec40ed9eb66591adea95c7/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/residential-complex-modern-apartment-building-568b83a809ec40ed9eb66591adea95c7?utm_medium=embed&utm_campaign=share-popup&utm_content=568b83a809ec40ed9eb66591adea95c7" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> residential complex modern apartment building </a> by <a href="https://sketchfab.com/saakbary64?utm_medium=embed&utm_campaign=share-popup&utm_content=568b83a809ec40ed9eb66591adea95c7" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> saeedakbari </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=568b83a809ec40ed9eb66591adea95c7" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_residential" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="LowPoly Manhattan Bridge" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/50861561576949f4931da99bdd2d940b/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/lowpoly-manhattan-bridge-50861561576949f4931da99bdd2d940b?utm_medium=embed&utm_campaign=share-popup&utm_content=50861561576949f4931da99bdd2d940b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> LowPoly Manhattan Bridge </a> by <a href="https://sketchfab.com/SUSUSUBE?utm_medium=embed&utm_campaign=share-popup&utm_content=50861561576949f4931da99bdd2d940b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> SUSUSUBE </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=50861561576949f4931da99bdd2d940b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_bridge" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Moscow Lamp Post" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/2cfd9d36706940ce96ff3bbbc98416ac/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/moscow-lamp-post-2cfd9d36706940ce96ff3bbbc98416ac?utm_medium=embed&utm_campaign=share-popup&utm_content=2cfd9d36706940ce96ff3bbbc98416ac" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Moscow Lamp Post </a> by <a href="https://sketchfab.com/goofy_ah_pole?utm_medium=embed&utm_campaign=share-popup&utm_content=2cfd9d36706940ce96ff3bbbc98416ac" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> CrazyPolski103 </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=2cfd9d36706940ce96ff3bbbc98416ac" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_lamp" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Hotel_[exterior]" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/92c4dea7d83f457d82ec71ff879d82e9/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/hotel-exterior-92c4dea7d83f457d82ec71ff879d82e9?utm_medium=embed&utm_campaign=share-popup&utm_content=92c4dea7d83f457d82ec71ff879d82e9" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Hotel_[exterior] </a> by <a href="https://sketchfab.com/yuuuusukeeee?utm_medium=embed&utm_campaign=share-popup&utm_content=92c4dea7d83f457d82ec71ff879d82e9" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Comicaroid </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=92c4dea7d83f457d82ec71ff879d82e9" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_hotel" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Camp Nou Stadium" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/37c9bfbd9ee64b90bd67ab7f500317e1/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/camp-nou-stadium-37c9bfbd9ee64b90bd67ab7f500317e1?utm_medium=embed&utm_campaign=share-popup&utm_content=37c9bfbd9ee64b90bd67ab7f500317e1" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Camp Nou Stadium </a> by <a href="https://sketchfab.com/farhad.Guli?utm_medium=embed&utm_campaign=share-popup&utm_content=37c9bfbd9ee64b90bd67ab7f500317e1" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> farhad.Guli </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=37c9bfbd9ee64b90bd67ab7f500317e1" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_stadium" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+            <div class="card" style="width: 19rem;">
+                <div class="sketchfab-embed-wrapper"> <iframe title="Lowpoly Road" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/31b1a923cea345ce8a5480712e404e9b/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/lowpoly-road-31b1a923cea345ce8a5480712e404e9b?utm_medium=embed&utm_campaign=share-popup&utm_content=31b1a923cea345ce8a5480712e404e9b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Lowpoly Road </a> by <a href="https://sketchfab.com/milanfonken?utm_medium=embed&utm_campaign=share-popup&utm_content=31b1a923cea345ce8a5480712e404e9b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Milan </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=31b1a923cea345ce8a5480712e404e9b" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+                <div class="card-body">
+                    <button id = "btn_path" type="button" class="btn btn-outline-primary">Place on Map</button>
+                </div>
+            </div><br>
+        </div> <br>
+        <div class ="container TUD" style="width: 19rem;">
+            <img src="./logo/TUDelft_logo_cmyk.png" alt="TUDelft Logo" width="300">
+        </div>
+    </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+        <!-- map Section -->
+        <div class="container map-section">
+            <h2>3D View of Den Haag | Leeghwaterplein Street</h2>
+            <!-- Example Bar Chart using Chart.js -->
+            <div id="cesiumContainer"></div>
+            <script type="module">
+                // Get your token from https://cesium.com/ion/tokens
+                Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNTA2NjgwNy01M2VmLTQ3YTQtOWY3Yy04M2JjN2RmOWU0MjciLCJpZCI6MTgyMjE5LCJpYXQiOjE3MDE2MDc3OTh9.1jyyFsW9sfSPtITZ4vDPWMICquqzg2UNwFZBr21o7JQ';
+                var viewer = new Cesium.Viewer('cesiumContainer', {
+                sceneMode: Cesium.SceneMode.SCENE3D,
+                }); 
+                // Add google Photorealistic 3D tileset
+                try {
+                const tileset = await Cesium.createGooglePhotorealistic3DTileset();
+                viewer.scene.primitives.add(tileset);
+                } catch (error) {
+                    console.log(`Failed to load tileset: ${error}`);
+                }
+                viewer.camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(4.324835028219674, 52.06361842382279, 150),
+                    orientation: {
+                        heading: Cesium.Math.toRadians(-45.0),
+                        pitch: Cesium.Math.toRadians(-15.0),
+                        
+                    },
+                });
+                // Add Cesium OSM Buildings.
+                // const buildingsTileset = await Cesium.createOsmBuildingsAsync();
+                // viewer.scene.primitives.add(buildingsTileset);
+            
+                // // Toggle the tree tileset's show property when the button is clicked.
+                // document.querySelector('#AddBuilding').onclick = function() {
+                // newBuildingTileset.show = !newBuildingTileset.show;
+                // };
+                viewer.scene.canvas.addEventListener("contextmenu", function (event) {
+                if (viewer.scene.pickPositionSupported) {
+                    var point = new Cesium.Cartesian2(event.clientX, event.clientY);
+                    //console.log("point " + point); // test the code
+                    var cart = viewer.scene.pickPosition(point);
+                    if (Cesium.defined(cart)) {
+                            var cartographic = Cesium.Cartographic.fromCartesian(cart);
+                            var longitude = Cesium.Math.toDegrees(cartographic.longitude);
+                            var latitude = Cesium.Math.toDegrees(cartographic.latitude);
+                            var height = cartographic.height;
+                            document.getElementById("Long").defaultValue = longitude;
+                            document.getElementById("Lat").defaultValue = latitude;
+                            document.getElementById("Height").defaultValue = height;
+                        }
+                }
+                });
+
+                // Add the 3D tree Tileset 
+                const newTreeTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2381011);
+                viewer.scene.primitives.add(newTreeTileset);
+                document.querySelector('#btn_AddTree').onclick = function() {
+                newTreeTileset.show = !newTreeTileset.show;
+                }
+                // const newTreeTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2381011);
+                // viewer.scene.primitives.add(newTreeTileset);
+                // // Add the 3D Building Tileset 
+                // const newBuildingTileset = await Cesium.Cesium3DTileset.fromIonAssetId(2376854);
+                // viewer.scene.primitives.add(newBuildingTileset);
+            </script>
+        </div><br>
+
+        <!-- Visualization Section -->
+        <div id="visual" class="container visualization">
+        <h2>Idicators Visualization</h2>
+        </div>
+        <script>
+            // Add plot from plotly 
+            var xData = ['SOX',
+            'NOX',
+            'VOCs',
+            'CO',
+            'PM2.5', 
+            'Road noise level (db)'];
+
+            function getrandom(num , mul) {
+                var value = [ ];
+                for ( i = 0; i <= num; i++ ) {
+                    var rand = Math.random() * mul;
+                    value.push(rand);
+                }
+                return value;
+            }
+
+            var yData = [
+                    getrandom(30 ,10),
+                    getrandom(30, 20),
+                    getrandom(30, 25),
+                    getrandom(30, 40),
+                    getrandom(30, 45),
+                    getrandom(30, 30),
+                ];
+            var colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)', 'rgba(255, 65, 54, 0.5)', 'rgba(207, 114, 255, 0.5)', 'rgba(127, 96, 0, 0.5)', 'rgba(255, 140, 184, 0.5)', 'rgba(79, 90, 117, 0.5)', 'rgba(222, 223, 0, 0.5)'];
+
+            var data = [];
+
+            for ( var i = 0; i < xData.length; i ++ ) {
+                var result = {
+                    type: 'box',
+                    y: yData[i],
+                    name: xData[i],
+                    boxpoints: 'all',
+                    jitter: 0.5,
+                    whiskerwidth: 0.2,
+                    fillcolor: 'cls',
+                    marker: {
+                        size: 2
+                    },
+                    line: {
+                        width: 1
+                    }
+                };
+                data.push(result);
+            };
+
+            const layout = {
+                title: 'Emission Indicators',
+                yaxis: {
+                    autorange: true,
+                    showgrid: true,
+                    zeroline: true,
+                    dtick: 5,
+                    gridcolor: 'rgb(255, 255, 255)',
+                    gridwidth: 1,
+                    zerolinecolor: 'rgb(255, 255, 255)',
+                    zerolinewidth: 2
+                },
+                margin: {
+                    l: 40,
+                    r: 30,
+                    b: 80,
+                    t: 100
+                },
+                paper_bgcolor: 'rgb(243, 243, 243)',
+                plot_bgcolor: 'rgb(243, 243, 243)',
+                showlegend: false,
+                autosize: true
+            };
+            var config = {responsive: true}
+            Plotly.newPlot(document.getElementById("visual"), data,config);
+            window.onresize = function() {
+            Plotly.relayout(document.getElementById("visual"), {
+                'xaxis.autorange': true,
+                'yaxis.autorange': true
+            });
+            };
+        </script>
+  </div>
+    <!--Right Sidebar -->
+    <div class="lsidebar">
+        <h2>Menu</h2> <!-- New title -->
+        <div class="Pickcoordination" style="width: 15rem;">
+            <h5 class="coord_title">Location Editor </h5>
+            <p class="card-text"> Right_click on the map to set coordinates for adding new objects.</p>
+            <h5 class="Pos">Position</h5>
+            <div class="card" style="width: 15rem;">
+                <div class="card-body">
+                    <form>
+                        <label for="Long" style="color: #000;">Longitude: </label><br>
+                        <input type="number" id="Long" name="Longitude" step=0.00001 value= 4.321504281276417><br>
+        
+                        <label for="Lat" style="color: #000;">Latitude:</label><br>
+                        <input type="number" id="Lat" name="Latitude" step=0.00001 value = 52.06570050418658><br>
+        
+                        <label for="Height" style="color: #000;">Height:</label><br>
+                        <input type="number" id="Height" name="Height" step=1 value = 44><br>
+                    </form><br>
+                </div>
+            </div><br>
+            <h5 class="Rotate">Rotation</h5>
+            <div class="card" style="width: 15rem;">
+                <div class="card-body">
+                    <form>
+                        <label for="Head" style="color: #000;">Heading:</label><br>
+                        <input type="range" id="Head" min="-180", max="180", step="0.1" value = "0"><br>
+                        
+                        <label for="Pitch" style="color: #000;">Pitch:</label><br>
+                        <input type="range" id="Pitch" min="-180", max="180", step="0.1" value = "0"><br>
+                        
+                        <label for="Roll" style="color: #000;">Roll:</label><br>
+                        <input type="range" id="Roll" min="-180", max="180", step="0.1" value = "0"><br>
+                    </form><br>
+                </div>
+            </div><br>
+            <h5 class="scale">Scale</h5>
+            <div class="card" style="width: 15rem;">
+                <div class="card-body">
+                    <form>
+                        <label for="scale" style="color: #000;">Scale:</label>
+                        <input type="number" id="scale" name="scale" value = "10"><br>
+                    </form><br>
+                </div>
+            </div><br>
+            
+        </div>
+    <div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
